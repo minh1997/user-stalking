@@ -1,27 +1,98 @@
 "use client";
 
 import { useState, FormEvent } from "react";
+import { ScanResult, ScanStatus } from "@/lib/scanners/types";
 
 type SearchType = "email" | "username";
+
+interface ScanResponse {
+  success: boolean;
+  email: string;
+  results: ScanResult[];
+  scannedAt: string;
+  error?: string;
+}
 
 export default function UserScanForm() {
   const [searchType, setSearchType] = useState<SearchType>("email");
   const [searchValue, setSearchValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [results, setResults] = useState<ScanResult[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!searchValue.trim()) return;
 
     setIsLoading(true);
-    
-    // TODO: Implement actual scan logic
-    console.log(`Scanning ${searchType}: ${searchValue}`);
-    
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    
-    setIsLoading(false);
+    setResults(null);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/scan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: searchValue,
+          scanners: ["facebook"],
+        }),
+      });
+
+      const data: ScanResponse = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "An error occurred");
+        return;
+      }
+
+      setResults(data.results);
+    } catch {
+      setError("Failed to connect to the server");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status: ScanStatus) => {
+    switch (status) {
+      case ScanStatus.TAKEN:
+        return (
+          <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+            <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        );
+      case ScanStatus.AVAILABLE:
+        return (
+          <div className="w-8 h-8 rounded-full bg-slate-500/20 flex items-center justify-center">
+            <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        );
+      case ScanStatus.ERROR:
+        return (
+          <div className="w-8 h-8 rounded-full bg-yellow-500/20 flex items-center justify-center">
+            <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+        );
+    }
+  };
+
+  const getStatusText = (status: ScanStatus) => {
+    switch (status) {
+      case ScanStatus.TAKEN:
+        return <span className="text-green-400 font-medium">Found</span>;
+      case ScanStatus.AVAILABLE:
+        return <span className="text-slate-400 font-medium">Not Found</span>;
+      case ScanStatus.ERROR:
+        return <span className="text-yellow-400 font-medium">Error</span>;
+    }
   };
 
   return (
@@ -178,6 +249,40 @@ export default function UserScanForm() {
           </button>
         </form>
 
+        {/* Error Message */}
+        {error && (
+          <div className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <p className="text-red-400 text-sm text-center">{error}</p>
+          </div>
+        )}
+
+        {/* Results */}
+        {results && results.length > 0 && (
+          <div className="mt-6 space-y-3">
+            <h3 className="text-white font-semibold text-lg mb-4">Scan Results</h3>
+            {results.map((result, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl"
+              >
+                <div className="flex items-center gap-3">
+                  {getStatusIcon(result.status)}
+                  <div>
+                    <p className="text-white font-medium">{result.siteName}</p>
+                    <p className="text-slate-500 text-xs capitalize">{result.category}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {getStatusText(result.status)}
+                  {result.reason && (
+                    <p className="text-slate-500 text-xs mt-1 max-w-[200px] truncate">{result.reason}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Info Text */}
         <p className="mt-6 text-center text-sm text-slate-500">
           Perfect for finding a unique username across GitHub, Twitter, Reddit, Instagram, and more, all in a single tool.
@@ -220,7 +325,7 @@ export default function UserScanForm() {
               />
             </svg>
           </div>
-          <p className="text-xs text-slate-400">Secure</p>
+          <p className="text-xs text-slate-400">OSINT</p>
         </div>
         <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
           <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-purple-500/20 mb-2">
