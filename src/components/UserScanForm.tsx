@@ -13,6 +13,10 @@ const EMAIL_SCANNERS = [
   { id: "pinterest", name: "Pinterest", category: "social", endpoint: "/api/scan/pinterest" },
 ];
 
+const USERNAME_SCANNERS = [
+  { id: "linkedin", name: "LinkedIn", category: "social", endpoint: "/api/scan/linkedin" },
+];
+
 interface ScannerStatus {
   id: string;
   name: string;
@@ -76,8 +80,8 @@ export default function UserScanForm() {
     setIsLoading(true);
     setError(null);
 
-    // Initialize all scanners as pending
-    const scanners = searchType === "email" ? EMAIL_SCANNERS : [];
+    // Initialize all scanners as pending based on search type
+    const scanners = searchType === "email" ? EMAIL_SCANNERS : USERNAME_SCANNERS;
     setScannerStatuses(
       scanners.map(s => ({
         id: s.id,

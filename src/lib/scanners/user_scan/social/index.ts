@@ -1,2 +1,1 @@
-// Placeholder for social username scanning
-export {};
+export { scanLinkedin } from "./linkedin";
