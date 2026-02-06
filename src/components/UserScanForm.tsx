@@ -301,67 +301,102 @@ export default function UserScanForm() {
           </div>
         )}
 
-        {/* Results - Real-time updates */}
+        {/* Results - Real-time updates grouped by category */}
         {scannerStatuses.length > 0 && (
-          <div className="mt-6 space-y-3">
+          <div className="mt-6 space-y-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-semibold text-lg">Scan Results</h3>
               <span className="text-xs text-slate-500">
                 {scannerStatuses.filter(s => s.status === "completed" || s.status === "error").length}/{scannerStatuses.length} completed
               </span>
             </div>
-            {scannerStatuses.map((scanner) => (
-              <div
-                key={scanner.id}
-                className={`flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl transition-all duration-300 ${
-                  scanner.status === "scanning" ? "animate-pulse" : ""
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  {scanner.status === "pending" && (
-                    <div className="w-8 h-8 rounded-full bg-slate-600/20 flex items-center justify-center">
-                      <div className="w-3 h-3 rounded-full bg-slate-500" />
-                    </div>
-                  )}
-                  {scanner.status === "scanning" && (
-                    <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                      <svg className="animate-spin w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                    </div>
-                  )}
-                  {scanner.status === "completed" && scanner.result && getStatusIcon(scanner.result.status)}
-                  {scanner.status === "error" && (
-                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
-                      <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-white font-medium">{scanner.name}</p>
-                    <p className="text-slate-500 text-xs capitalize">{scanner.category}</p>
-                  </div>
+            
+            {/* Group by category */}
+            {Object.entries(
+              scannerStatuses.reduce((acc, scanner) => {
+                if (!acc[scanner.category]) {
+                  acc[scanner.category] = [];
+                }
+                acc[scanner.category].push(scanner);
+                return acc;
+              }, {} as Record<string, ScannerStatus[]>)
+            ).map(([category, scanners]) => (
+              <div key={category} className="space-y-2">
+                {/* Category Header */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className={`w-2 h-2 rounded-full ${
+                    category === "social" ? "bg-blue-400" :
+                    category === "dev" ? "bg-green-400" :
+                    category === "creator" ? "bg-pink-400" :
+                    category === "entertainment" ? "bg-purple-400" :
+                    category === "gaming" ? "bg-red-400" :
+                    "bg-slate-400"
+                  }`} />
+                  <h4 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                    {category}
+                  </h4>
+                  <div className="flex-1 h-px bg-slate-700/50" />
+                  <span className="text-xs text-slate-500">
+                    {scanners.filter(s => s.status === "completed" && s.result?.status === "taken").length} found
+                  </span>
                 </div>
-                <div className="text-right">
-                  {scanner.status === "pending" && (
-                    <span className="text-slate-500 text-sm">Waiting...</span>
-                  )}
-                  {scanner.status === "scanning" && (
-                    <span className="text-purple-400 text-sm">Scanning...</span>
-                  )}
-                  {scanner.status === "completed" && scanner.result && (
-                    <>
-                      {getStatusText(scanner.result.status)}
-                      {scanner.result.reason && (
-                        <p className="text-slate-500 text-xs mt-1 max-w-[200px] truncate">{scanner.result.reason}</p>
-                      )}
-                    </>
-                  )}
-                  {scanner.status === "error" && (
-                    <span className="text-red-400 text-sm">Failed</span>
-                  )}
+                
+                {/* Scanners in this category */}
+                <div className="space-y-2">
+                  {scanners.map((scanner) => (
+                    <div
+                      key={scanner.id}
+                      className={`flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl transition-all duration-300 ${
+                        scanner.status === "scanning" ? "animate-pulse" : ""
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {scanner.status === "pending" && (
+                          <div className="w-8 h-8 rounded-full bg-slate-600/20 flex items-center justify-center">
+                            <div className="w-3 h-3 rounded-full bg-slate-500" />
+                          </div>
+                        )}
+                        {scanner.status === "scanning" && (
+                          <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                            <svg className="animate-spin w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          </div>
+                        )}
+                        {scanner.status === "completed" && scanner.result && getStatusIcon(scanner.result.status)}
+                        {scanner.status === "error" && (
+                          <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-white font-medium">{scanner.name}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        {scanner.status === "pending" && (
+                          <span className="text-slate-500 text-sm">Waiting...</span>
+                        )}
+                        {scanner.status === "scanning" && (
+                          <span className="text-purple-400 text-sm">Scanning...</span>
+                        )}
+                        {scanner.status === "completed" && scanner.result && (
+                          <>
+                            {getStatusText(scanner.result.status)}
+                            {scanner.result.reason && (
+                              <p className="text-slate-500 text-xs mt-1 max-w-[200px] truncate">{scanner.result.reason}</p>
+                            )}
+                          </>
+                        )}
+                        {scanner.status === "error" && (
+                          <span className="text-red-400 text-sm">Failed</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
