@@ -1,0 +1,1 @@
+export { scanSpotify } from "./spotify";
