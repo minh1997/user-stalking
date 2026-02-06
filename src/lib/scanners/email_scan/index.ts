@@ -2,4 +2,4 @@
 export * from "./social";
 
 // Re-export for convenience
-export { scanFacebook, scanInstagram, scanX } from "./social";
+export { scanFacebook, scanInstagram, scanX, scanPinterest } from "./social";

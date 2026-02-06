@@ -23,7 +23,7 @@ export default function Home() {
               </svg>
             </div>
             <h1 className="text-4xl font-bold text-white sm:text-5xl mb-4">
-              User Scanner
+              User Stalking
             </h1>
             <p className="text-lg text-slate-300 max-w-2xl mx-auto">
               Enter an email address or username to scan and retrieve user information across multiple platforms.
