@@ -1,6 +1,6 @@
 // Scanner registry for dynamic scanning
 import { Scanner, ScanResult, ScanCategory } from "./core";
-import { scanFacebook, scanInstagram } from "./email_scan";
+import { scanFacebook, scanInstagram, scanX } from "./email_scan";
 
 // Re-export types for external use
 export type { ScanResult, ScanCategory, Scanner } from "./core";
@@ -19,6 +19,12 @@ export const emailScanners: Record<string, Scanner> = {
     category: "social",
     scanType: "email",
     scan: scanInstagram,
+  },
+  x: {
+    name: "X",
+    category: "social",
+    scanType: "email",
+    scan: scanX,
   },
 };
 
