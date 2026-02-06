@@ -1,1 +1,2 @@
 export { scanFacebook } from "./facebook";
+export { scanInstagram } from "./instagram";

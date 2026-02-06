@@ -4,7 +4,7 @@ import {
   createAvailableResult,
   createErrorResult,
   createClient,
-} from "../../core";
+} from "@/lib/scanners/core";
 
 const SITE_NAME = "Facebook";
 const CATEGORY = "social" as const;
@@ -13,7 +13,6 @@ const SCAN_TYPE = "email" as const;
 /**
  * Facebook email scanner
  * Checks if an email is registered with Facebook by using the password recovery flow
- * Uses HTTP/2 like Python's httpx for proper Facebook compatibility
  */
 export async function scanFacebook(email: string): Promise<ScanResult> {
   try {

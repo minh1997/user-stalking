@@ -1,5 +1,11 @@
-import got, { Got } from "got";
+import got, { Got, Response, OptionsOfTextResponseBody } from "got";
 import { CookieJar } from "tough-cookie";
+
+export interface HttpClient {
+  get: (url: string, options?: OptionsOfTextResponseBody) => Promise<Response<string>>;
+  post: (url: string, options?: OptionsOfTextResponseBody) => Promise<Response<string>>;
+  getCookie: (name: string, url: string) => string | undefined;
+}
 
 /**
  * Create an HTTP client with cookie support and HTTP/2
@@ -8,10 +14,10 @@ import { CookieJar } from "tough-cookie";
 export function createClient(options?: {
   followRedirect?: boolean;
   http2?: boolean;
-}): Got {
+}): HttpClient {
   const cookieJar = new CookieJar();
 
-  return got.extend({
+  const instance = got.extend({
     http2: options?.http2 ?? true,
     followRedirect: options?.followRedirect ?? false,
     cookieJar,
@@ -29,6 +35,16 @@ export function createClient(options?: {
         '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
     },
   });
+
+  return {
+    get: (url: string, options?: OptionsOfTextResponseBody) => instance.get(url, options),
+    post: (url: string, options?: OptionsOfTextResponseBody) => instance.post(url, options),
+    getCookie: (name: string, url: string) => {
+      const cookies = cookieJar.getCookiesSync(url);
+      const cookie = cookies.find((c) => c.key === name);
+      return cookie?.value;
+    },
+  };
 }
 
 /**

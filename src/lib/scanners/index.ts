@@ -1,15 +1,10 @@
-// Core types and utilities
-export * from "./core";
-
-// Email scanners
-export * from "./email_scan";
-
-// Username scanners  
-export * from "./user_scan";
-
 // Scanner registry for dynamic scanning
 import { Scanner, ScanResult, ScanCategory } from "./core";
-import { scanFacebook } from "./email_scan";
+import { scanFacebook, scanInstagram } from "./email_scan";
+
+// Re-export types for external use
+export type { ScanResult, ScanCategory, Scanner } from "./core";
+export { ScanStatus } from "./core";
 
 // Email scanner registry
 export const emailScanners: Record<string, Scanner> = {
@@ -18,6 +13,12 @@ export const emailScanners: Record<string, Scanner> = {
     category: "social",
     scanType: "email",
     scan: scanFacebook,
+  },
+  instagram: {
+    name: "Instagram",
+    category: "social",
+    scanType: "email",
+    scan: scanInstagram,
   },
 };
 
