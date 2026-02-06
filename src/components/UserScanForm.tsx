@@ -11,6 +11,7 @@ const EMAIL_SCANNERS = [
   { id: "instagram", name: "Instagram", category: "social", endpoint: "/api/scan/instagram" },
   { id: "x", name: "X", category: "social", endpoint: "/api/scan/x" },
   { id: "pinterest", name: "Pinterest", category: "social", endpoint: "/api/scan/pinterest" },
+  { id: "github", name: "GitHub", category: "dev", endpoint: "/api/scan/github" },
 ];
 
 const USERNAME_SCANNERS = [
