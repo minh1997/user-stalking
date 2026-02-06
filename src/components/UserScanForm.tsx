@@ -1,59 +1,97 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useCallback } from "react";
 import { ScanResult, ScanStatus } from "@/types/scan";
 
 type SearchType = "email" | "username";
 
-interface ScanResponse {
-  success: boolean;
-  query: string;
-  searchType: string;
-  results: ScanResult[];
-  scannedAt: string;
-  error?: string;
+// Define available scanners with their endpoints
+const EMAIL_SCANNERS = [
+  { id: "facebook", name: "Facebook", category: "social", endpoint: "/api/scan/facebook" },
+  { id: "instagram", name: "Instagram", category: "social", endpoint: "/api/scan/instagram" },
+  { id: "x", name: "X", category: "social", endpoint: "/api/scan/x" },
+];
+
+interface ScannerStatus {
+  id: string;
+  name: string;
+  category: string;
+  status: "pending" | "scanning" | "completed" | "error";
+  result?: ScanResult;
 }
 
 export default function UserScanForm() {
   const [searchType, setSearchType] = useState<SearchType>("email");
   const [searchValue, setSearchValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<ScanResult[] | null>(null);
+  const [scannerStatuses, setScannerStatuses] = useState<ScannerStatus[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const scanSingleService = useCallback(async (
+    scanner: typeof EMAIL_SCANNERS[0],
+    query: string
+  ): Promise<ScanResult | null> => {
+    try {
+      // Update status to scanning
+      setScannerStatuses(prev => 
+        prev.map(s => s.id === scanner.id ? { ...s, status: "scanning" } : s)
+      );
+
+      const response = await fetch(scanner.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.result) {
+        // Update with result
+        setScannerStatuses(prev =>
+          prev.map(s => s.id === scanner.id 
+            ? { ...s, status: "completed", result: data.result } 
+            : s
+          )
+        );
+        return data.result;
+      } else {
+        setScannerStatuses(prev =>
+          prev.map(s => s.id === scanner.id ? { ...s, status: "error" } : s)
+        );
+        return null;
+      }
+    } catch {
+      setScannerStatuses(prev =>
+        prev.map(s => s.id === scanner.id ? { ...s, status: "error" } : s)
+      );
+      return null;
+    }
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!searchValue.trim()) return;
 
     setIsLoading(true);
-    setResults(null);
     setError(null);
 
-    try {
-      const response = await fetch("/api/scan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: searchValue,
-          searchType: searchType,
-        }),
-      });
+    // Initialize all scanners as pending
+    const scanners = searchType === "email" ? EMAIL_SCANNERS : [];
+    setScannerStatuses(
+      scanners.map(s => ({
+        id: s.id,
+        name: s.name,
+        category: s.category,
+        status: "pending" as const,
+      }))
+    );
 
-      const data: ScanResponse = await response.json();
+    // Run all scans in parallel - each one updates independently
+    await Promise.all(
+      scanners.map(scanner => scanSingleService(scanner, searchValue))
+    );
 
-      if (!response.ok) {
-        setError(data.error || "An error occurred");
-        return;
-      }
-
-      setResults(data.results);
-    } catch {
-      setError("Failed to connect to the server");
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   };
 
   const getStatusIcon = (status: ScanStatus) => {
@@ -257,26 +295,66 @@ export default function UserScanForm() {
           </div>
         )}
 
-        {/* Results */}
-        {results && results.length > 0 && (
+        {/* Results - Real-time updates */}
+        {scannerStatuses.length > 0 && (
           <div className="mt-6 space-y-3">
-            <h3 className="text-white font-semibold text-lg mb-4">Scan Results</h3>
-            {results.map((result, index) => (
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold text-lg">Scan Results</h3>
+              <span className="text-xs text-slate-500">
+                {scannerStatuses.filter(s => s.status === "completed" || s.status === "error").length}/{scannerStatuses.length} completed
+              </span>
+            </div>
+            {scannerStatuses.map((scanner) => (
               <div
-                key={index}
-                className="flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl"
+                key={scanner.id}
+                className={`flex items-center justify-between p-4 bg-slate-800/50 border border-slate-700/50 rounded-xl transition-all duration-300 ${
+                  scanner.status === "scanning" ? "animate-pulse" : ""
+                }`}
               >
                 <div className="flex items-center gap-3">
-                  {getStatusIcon(result.status)}
+                  {scanner.status === "pending" && (
+                    <div className="w-8 h-8 rounded-full bg-slate-600/20 flex items-center justify-center">
+                      <div className="w-3 h-3 rounded-full bg-slate-500" />
+                    </div>
+                  )}
+                  {scanner.status === "scanning" && (
+                    <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <svg className="animate-spin w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                    </div>
+                  )}
+                  {scanner.status === "completed" && scanner.result && getStatusIcon(scanner.result.status)}
+                  {scanner.status === "error" && (
+                    <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                  )}
                   <div>
-                    <p className="text-white font-medium">{result.siteName}</p>
-                    <p className="text-slate-500 text-xs capitalize">{result.category}</p>
+                    <p className="text-white font-medium">{scanner.name}</p>
+                    <p className="text-slate-500 text-xs capitalize">{scanner.category}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  {getStatusText(result.status)}
-                  {result.reason && (
-                    <p className="text-slate-500 text-xs mt-1 max-w-[200px] truncate">{result.reason}</p>
+                  {scanner.status === "pending" && (
+                    <span className="text-slate-500 text-sm">Waiting...</span>
+                  )}
+                  {scanner.status === "scanning" && (
+                    <span className="text-purple-400 text-sm">Scanning...</span>
+                  )}
+                  {scanner.status === "completed" && scanner.result && (
+                    <>
+                      {getStatusText(scanner.result.status)}
+                      {scanner.result.reason && (
+                        <p className="text-slate-500 text-xs mt-1 max-w-[200px] truncate">{scanner.result.reason}</p>
+                      )}
+                    </>
+                  )}
+                  {scanner.status === "error" && (
+                    <span className="text-red-400 text-sm">Failed</span>
                   )}
                 </div>
               </div>
