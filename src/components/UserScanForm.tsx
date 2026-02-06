@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, FormEvent } from "react";
-import { ScanResult, ScanStatus } from "@/lib/scanners/types";
+import { ScanResult, ScanStatus } from "@/types/scan";
 
 type SearchType = "email" | "username";
 
 interface ScanResponse {
   success: boolean;
-  email: string;
+  query: string;
+  searchType: string;
   results: ScanResult[];
   scannedAt: string;
   error?: string;
@@ -35,8 +36,8 @@ export default function UserScanForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: searchValue,
-          scanners: ["facebook"],
+          query: searchValue,
+          searchType: searchType,
         }),
       });
 

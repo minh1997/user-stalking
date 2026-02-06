@@ -1,14 +1,14 @@
-import got from "got";
-import { CookieJar } from "tough-cookie";
 import {
   ScanResult,
   createTakenResult,
   createAvailableResult,
   createErrorResult,
-} from "./types";
+  createClient,
+} from "../../core";
 
 const SITE_NAME = "Facebook";
-const CATEGORY = "social";
+const CATEGORY = "social" as const;
+const SCAN_TYPE = "email" as const;
 
 /**
  * Facebook email scanner
@@ -17,23 +17,7 @@ const CATEGORY = "social";
  */
 export async function scanFacebook(email: string): Promise<ScanResult> {
   try {
-    // Create a client with cookie jar (like httpx.AsyncClient)
-    const cookieJar = new CookieJar();
-    const client = got.extend({
-      http2: true,
-      followRedirect: false,
-      cookieJar,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "identity",
-        "sec-ch-ua":
-          '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
-      },
-    });
+    const client = createClient();
 
     // Step 1: Initialize session by visiting mobile login page
     await client.get("https://m.facebook.com/login/");
@@ -64,6 +48,7 @@ export async function scanFacebook(email: string): Promise<ScanResult> {
       return createErrorResult(
         SITE_NAME,
         CATEGORY,
+        SCAN_TYPE,
         "Failed to extract tokens (LSD/Jazoest)"
       );
     }
@@ -116,6 +101,7 @@ export async function scanFacebook(email: string): Promise<ScanResult> {
       return createTakenResult(
         SITE_NAME,
         CATEGORY,
+        SCAN_TYPE,
         "Email is registered with Facebook"
       );
     } else if (
@@ -125,18 +111,20 @@ export async function scanFacebook(email: string): Promise<ScanResult> {
       return createAvailableResult(
         SITE_NAME,
         CATEGORY,
+        SCAN_TYPE,
         "Email is not registered with Facebook"
       );
     } else {
       return createErrorResult(
         SITE_NAME,
         CATEGORY,
+        SCAN_TYPE,
         "Unexpected response from Facebook"
       );
     }
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
-    return createErrorResult(SITE_NAME, CATEGORY, `Exception: ${errorMessage}`);
+    return createErrorResult(SITE_NAME, CATEGORY, SCAN_TYPE, `Exception: ${errorMessage}`);
   }
 }

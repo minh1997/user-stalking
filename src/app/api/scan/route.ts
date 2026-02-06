@@ -1,47 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
-import { scanFacebook, ScanResult } from "@/lib/scanners";
+import { 
+  emailScanners, 
+  usernameScanners,
+  runAllScanners,
+  ScanResult,
+  ScanCategory 
+} from "@/lib/scanners";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, scanners = ["facebook"] } = body;
+    const { 
+      query, 
+      searchType = "email",
+      scanners,
+      categories 
+    } = body;
 
-    if (!email) {
+    if (!query) {
       return NextResponse.json(
-        { error: "Email is required" },
+        { error: "Query (email or username) is required" },
         { status: 400 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: "Invalid email format" },
-        { status: 400 }
+    // Validate based on search type
+    if (searchType === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(query)) {
+        return NextResponse.json(
+          { error: "Invalid email format" },
+          { status: 400 }
+        );
+      }
+    }
+
+    let results: ScanResult[] = [];
+
+    if (scanners && scanners.length > 0) {
+      // Run specific scanners
+      const registry = searchType === "email" ? emailScanners : usernameScanners;
+      const scannerPromises = scanners
+        .filter((name: string) => registry[name])
+        .map((name: string) => registry[name].scan(query));
+      
+      const scanResults = await Promise.allSettled(scannerPromises);
+      results = scanResults
+        .filter((r): r is PromiseFulfilledResult<ScanResult> => r.status === "fulfilled")
+        .map((r) => r.value);
+    } else {
+      // Run all scanners (optionally filtered by categories)
+      results = await runAllScanners(
+        query,
+        searchType,
+        categories as ScanCategory[] | undefined
       );
     }
-
-    const results: ScanResult[] = [];
-
-    // Run selected scanners
-    const scannerPromises: Promise<ScanResult>[] = [];
-
-    if (scanners.includes("facebook")) {
-      scannerPromises.push(scanFacebook(email));
-    }
-
-    // Add more scanners here as they are implemented
-    // if (scanners.includes("instagram")) {
-    //   scannerPromises.push(scanInstagram(email));
-    // }
-
-    const scanResults = await Promise.all(scannerPromises);
-    results.push(...scanResults);
 
     return NextResponse.json({
       success: true,
-      email,
+      query,
+      searchType,
       results,
       scannedAt: new Date().toISOString(),
     });
@@ -52,4 +71,20 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// GET endpoint to list available scanners
+export async function GET() {
+  return NextResponse.json({
+    emailScanners: Object.entries(emailScanners).map(([key, scanner]) => ({
+      id: key,
+      name: scanner.name,
+      category: scanner.category,
+    })),
+    usernameScanners: Object.entries(usernameScanners).map(([key, scanner]) => ({
+      id: key,
+      name: scanner.name,
+      category: scanner.category,
+    })),
+  });
 }

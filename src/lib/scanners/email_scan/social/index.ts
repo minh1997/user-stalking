@@ -1,0 +1,1 @@
+export { scanFacebook } from "./facebook";
