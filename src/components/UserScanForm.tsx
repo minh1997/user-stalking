@@ -21,6 +21,7 @@ const USERNAME_SCANNERS = [
   { id: "buymeacoffee", name: "Buy Me a Coffee", category: "donation", endpoint: "/api/scan/buymeacoffee" },
   { id: "github-user", name: "GitHub", category: "dev", endpoint: "/api/scan/github-user" },
   { id: "patreon", name: "Patreon", category: "creator", endpoint: "/api/scan/patreon" },
+  { id: "medium", name: "Medium", category: "creator", endpoint: "/api/scan/medium" },
 ];
 
 interface ScannerStatus {

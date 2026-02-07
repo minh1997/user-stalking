@@ -9,3 +9,4 @@ export { scanGitHubUsername } from "./dev/github";
 
 // Creator platforms
 export { scanPatreon } from "./creator/patreon";
+export { scanMedium } from "./creator/medium";
