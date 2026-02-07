@@ -2,6 +2,8 @@
 
 An OSINT (Open Source Intelligence) tool to scan emails and usernames across multiple platforms. Find out if an email or username is registered on various social media, developer platforms, and other services.
 
+I developed this project based on another Python project here. https://github.com/kaifcodec/user-scanner/tree/main
+
 ## Features
 
 - **Email Scanning**: Check if an email is registered on Facebook, Instagram, X, Pinterest, GitHub, Spotify, Duolingo
