@@ -396,12 +396,27 @@ export default function UserScanForm() {
                           <span className="text-purple-400 text-sm">Scanning...</span>
                         )}
                         {scanner.status === "completed" && scanner.result && (
-                          <>
-                            {getStatusText(scanner.result.status)}
+                          <div className="flex flex-col items-end gap-1">
+                            <div className="flex items-center gap-2">
+                              {getStatusText(scanner.result.status)}
+                              {scanner.result.url && scanner.result.status === ScanStatus.TAKEN && (
+                                <a
+                                  href={scanner.result.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 transition-colors"
+                                  title="View Profile"
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  </svg>
+                                </a>
+                              )}
+                            </div>
                             {scanner.result.reason && (
-                              <p className="text-slate-500 text-xs mt-1 max-w-[200px] truncate">{scanner.result.reason}</p>
+                              <p className="text-slate-500 text-xs max-w-[200px] truncate">{scanner.result.reason}</p>
                             )}
-                          </>
+                          </div>
                         )}
                         {scanner.status === "error" && (
                           <span className="text-red-400 text-sm">Failed</span>

@@ -13,8 +13,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Basic username validation (alphanumeric and hyphens for GitHub)
-    const usernameRegex = /^[a-zA-Z0-9-]+$/;
+    // Basic username validation (alphanumeric, hyphens, and underscores)
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
     if (!usernameRegex.test(query)) {
       return NextResponse.json(
         { error: "Invalid username format" },

@@ -77,7 +77,8 @@ export async function scanLinkedin(username: string): Promise<ScanResult> {
             SITE_NAME,
             CATEGORY,
             SCAN_TYPE,
-            "Username exists on LinkedIn"
+            "Username exists on LinkedIn",
+            url
           );
         }
       }
