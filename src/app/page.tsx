@@ -26,7 +26,7 @@ export default function Home() {
               User Stalking
             </h1>
             <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-              Enter an email address or username to scan and retrieve user information across multiple platforms.
+              Enter an email address or username to scan and retrieve user information.
             </p>
           </div>
 
