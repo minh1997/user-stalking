@@ -3,6 +3,7 @@ export { scanLinkedin } from "./social/linkedin";
 export { scanYouTube } from "./social/youtube";
 export { scanTikTok } from "./social/tiktok";
 export { scanXUsername } from "./social/x";
+export { scanDiscord } from "./social/discord";
 
 // Donation platforms
 export { scanBuyMeACoffee } from "./donation/buymeacoffee";
