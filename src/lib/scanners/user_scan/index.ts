@@ -1,5 +1,6 @@
 // Social platforms
 export { scanLinkedin } from "./social/linkedin";
+export { scanYouTube } from "./social/youtube";
 
 // Donation platforms
 export { scanBuyMeACoffee } from "./donation/buymeacoffee";
