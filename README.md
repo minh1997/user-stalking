@@ -4,6 +4,8 @@ An OSINT (Open Source Intelligence) tool to scan emails and usernames across mul
 
 I developed this project based on another Python project here. https://github.com/kaifcodec/user-scanner/tree/main
 
+lowtechdevです。これはいちかでも十分理解できるプロジェクトだと思いますし、このプロジェクトに追加モジュールを開発することで練習にもなります。
+
 Demo: https://user-stalking.vercel.app
 
 ![alt text](screenshot.png)
