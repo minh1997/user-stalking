@@ -4,6 +4,7 @@ export { scanYouTube } from "./social/youtube";
 export { scanTikTok } from "./social/tiktok";
 export { scanXUsername } from "./social/x";
 export { scanDiscord } from "./social/discord";
+export { scanInstagramUsername } from "./social/instagram";
 
 // Donation platforms
 export { scanBuyMeACoffee } from "./donation/buymeacoffee";

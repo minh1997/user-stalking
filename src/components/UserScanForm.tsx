@@ -22,6 +22,7 @@ const USERNAME_SCANNERS = [
   { id: "tiktok", name: "TikTok", category: "social", endpoint: "/api/scan/tiktok" },
   { id: "x-user", name: "X", category: "social", endpoint: "/api/scan/x-user" },
   { id: "discord", name: "Discord", category: "social", endpoint: "/api/scan/discord" },
+  { id: "instagram-user", name: "Instagram", category: "social", endpoint: "/api/scan/instagram-user" },
   { id: "buymeacoffee", name: "Buy Me a Coffee", category: "donation", endpoint: "/api/scan/buymeacoffee" },
   { id: "github-user", name: "GitHub", category: "dev", endpoint: "/api/scan/github-user" },
   { id: "patreon", name: "Patreon", category: "creator", endpoint: "/api/scan/patreon" },
