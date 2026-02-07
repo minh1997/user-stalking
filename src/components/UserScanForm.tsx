@@ -19,6 +19,7 @@ const EMAIL_SCANNERS = [
 const USERNAME_SCANNERS = [
   { id: "linkedin", name: "LinkedIn", category: "social", endpoint: "/api/scan/linkedin" },
   { id: "buymeacoffee", name: "Buy Me a Coffee", category: "donation", endpoint: "/api/scan/buymeacoffee" },
+  { id: "github-user", name: "GitHub", category: "dev", endpoint: "/api/scan/github-user" },
 ];
 
 interface ScannerStatus {
