@@ -9,3 +9,6 @@ export { scanGitHub } from "./dev/github";
 
 // Music platforms
 export { scanSpotify } from "./music/spotify";
+
+// Learning platforms
+export { scanDuolingo } from "./learning/duolingo";

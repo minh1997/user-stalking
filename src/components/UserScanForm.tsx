@@ -13,6 +13,7 @@ const EMAIL_SCANNERS = [
   { id: "pinterest", name: "Pinterest", category: "social", endpoint: "/api/scan/pinterest" },
   { id: "github", name: "GitHub", category: "dev", endpoint: "/api/scan/github" },
   { id: "spotify", name: "Spotify", category: "music", endpoint: "/api/scan/spotify" },
+  { id: "duolingo", name: "Duolingo", category: "learning", endpoint: "/api/scan/duolingo" },
 ];
 
 const USERNAME_SCANNERS = [
