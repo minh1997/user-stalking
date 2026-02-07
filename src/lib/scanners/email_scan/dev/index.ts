@@ -1,1 +1,0 @@
-export { scanGitHub } from "./github";

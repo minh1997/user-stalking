@@ -1,1 +1,0 @@
-export { scanSpotify } from "./spotify";

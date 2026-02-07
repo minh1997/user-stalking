@@ -1,13 +1,11 @@
 // Social platforms
-export * from "./social";
+export { scanFacebook } from "./social/facebook";
+export { scanInstagram } from "./social/instagram";
+export { scanX } from "./social/x";
+export { scanPinterest } from "./social/pinterest";
 
 // Dev platforms
-export * from "./dev";
+export { scanGitHub } from "./dev/github";
 
 // Music platforms
-export * from "./music";
-
-// Re-export for convenience
-export { scanFacebook, scanInstagram, scanX, scanPinterest } from "./social";
-export { scanGitHub } from "./dev";
-export { scanSpotify } from "./music";
+export { scanSpotify } from "./music/spotify";
