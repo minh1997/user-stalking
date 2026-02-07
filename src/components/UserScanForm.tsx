@@ -19,6 +19,7 @@ const EMAIL_SCANNERS = [
 const USERNAME_SCANNERS = [
   { id: "linkedin", name: "LinkedIn", category: "social", endpoint: "/api/scan/linkedin" },
   { id: "youtube", name: "YouTube", category: "social", endpoint: "/api/scan/youtube" },
+  { id: "tiktok", name: "TikTok", category: "social", endpoint: "/api/scan/tiktok" },
   { id: "buymeacoffee", name: "Buy Me a Coffee", category: "donation", endpoint: "/api/scan/buymeacoffee" },
   { id: "github-user", name: "GitHub", category: "dev", endpoint: "/api/scan/github-user" },
   { id: "patreon", name: "Patreon", category: "creator", endpoint: "/api/scan/patreon" },
