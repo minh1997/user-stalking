@@ -1,5 +1,5 @@
 // Social platforms
-export * from "./social";
+export { scanLinkedin } from "./social/linkedin";
 
-// Re-export for convenience
-export { scanLinkedin } from "./social";
+// Donation platforms
+export { scanBuyMeACoffee } from "./donation/buymeacoffee";

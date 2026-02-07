@@ -1,1 +1,0 @@
-export { scanLinkedin } from "./linkedin";
