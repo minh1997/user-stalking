@@ -6,3 +6,6 @@ export { scanBuyMeACoffee } from "./donation/buymeacoffee";
 
 // Dev platforms
 export { scanGitHubUsername } from "./dev/github";
+
+// Creator platforms
+export { scanPatreon } from "./creator/patreon";
